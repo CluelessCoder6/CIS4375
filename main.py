@@ -5,6 +5,7 @@ from sql import create_connection
 from sql import execute_read_query
 import creds
 
+
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 myCreds = creds.Creds()
@@ -14,7 +15,10 @@ conn = create_connection(myCreds.conString, myCreds.username,
 
 @app.route('/inventory', methods=['GET'])
 def all_inventory():
-    sql = "SELECT * FROM Products"
+    sql =  """select p.product_id,p.product_name,p.product_desc,p.product_price,
+             p.product_quantity,p.category_id,c.category_name
+             from Products p join Category c 
+             where p.category_id = c.category_id"""
     inventory = execute_read_query(conn, sql)
     results = []
     for product in inventory:
@@ -24,7 +28,16 @@ def all_inventory():
 
 @app.route('/sales', methods=['GET'])
 def all_sales():
-    sql = "SELECT * FROM Orders"
+    sql = "select * from Orders"
+    orders = execute_read_query(conn, sql)
+    results = []
+    for order in orders:
+        results.append(order)
+    return jsonify(results)
+
+@app.route('/customers', methods=['GET'])
+def all_customers():
+    sql = "select * from Customers"
     orders = execute_read_query(conn, sql)
     results = []
     for order in orders:
